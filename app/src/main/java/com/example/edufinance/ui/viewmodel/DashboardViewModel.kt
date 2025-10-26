@@ -36,11 +36,9 @@ class DashboardViewModel : ViewModel() {
     ) {
         val totalGasto = alimentos + transporte + libros + ocio + ahorro
 
-        // Si el total del presupuesto supera el saldo disponible, muestra mensaje de error
         if (totalGasto > saldoTotal) {
             mensaje += "Saldo insuficiente, modifique los campos\n"
         } else {
-            // Actualiza el presupuesto y descuenta del saldo total
             weeklyBudget = WeeklyBudget(alimentos, transporte, libros, ocio, ahorro)
             saldoTotal -= totalGasto
             mensaje += "Presupuesto actualizado\n"
@@ -49,11 +47,9 @@ class DashboardViewModel : ViewModel() {
 
     // Función para registrar un gasto en una categoría específica
     fun registrarGasto(categoria: String, monto: Double) {
-        // Verifica si hay saldo suficiente para el gasto
         if (monto > saldoTotal) {
             mensaje += "Saldo insuficiente para $categoria. Por favor modifique el campo\n"
         } else {
-            // Actualiza la categoría correspondiente sumando el monto
             weeklyBudget = when (categoria) {
                 "Alimentos" -> weeklyBudget.copy(alimentos = weeklyBudget.alimentos + monto)
                 "Transporte" -> weeklyBudget.copy(transporte = weeklyBudget.transporte + monto)
@@ -62,7 +58,6 @@ class DashboardViewModel : ViewModel() {
                 "Ahorro" -> weeklyBudget.copy(ahorro = weeklyBudget.ahorro + monto)
                 else -> weeklyBudget
             }
-            // Descarga el monto del saldo total y agrega mensaje de confirmación
             saldoTotal -= monto
             mensaje += "$categoria registrado: $${String.format("%.2f", monto)}\n"
         }
@@ -71,6 +66,19 @@ class DashboardViewModel : ViewModel() {
     // Función para limpiar los mensajes del usuario
     fun limpiarMensaje() {
         mensaje = ""
+    }
+
+    // Función para retirar dinero del ahorro
+    fun retirarDeAhorro(monto: Double) {
+        if (monto > 0 && monto <= weeklyBudget.ahorro) {
+            weeklyBudget = weeklyBudget.copy(ahorro = weeklyBudget.ahorro - monto)
+            saldoTotal += monto
+            mensaje = "Se retiraron $${String.format("%.2f", monto)} del ahorro\n"
+        } else if (monto > weeklyBudget.ahorro) {
+            mensaje = "No tienes suficiente ahorro para retirar.\n"
+        } else {
+            mensaje = "Monto inválido.\n"
+        }
     }
 }
 

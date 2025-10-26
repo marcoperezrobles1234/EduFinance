@@ -4,16 +4,32 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.edufinance.ui.viewmodel.DashboardViewModel
+import com.example.edufinance.ui.viewmodel.RemindersViewModel
 
 @Composable
-fun MainScreen(navController: NavHostController, viewModel: DashboardViewModel) {
-    // Variable que guarda qué elemento está seleccionado actualmente en la barra inferior
-    var selectedItem by remember { mutableStateOf("dashboard") }
+fun MainScreen(
+    navController: NavHostController,
+    viewModel: DashboardViewModel,
+    showReminderOnStart: Boolean = false
+) {
+    // ViewModel para la sección de recordatorios
+    val remindersVM: RemindersViewModel = viewModel()
 
-    // Lista de elementos que aparecerán en la barra de navegación inferior
-    // Cada uno tiene una ruta (string) y un ícono asociado
+    // Estado para saber qué pantalla está seleccionada
+    var selectedItem by rememberSaveable { mutableStateOf("dashboard") }
+
+    // Controla si se muestra el pop-up del recordatorio
+    var showGate by rememberSaveable { mutableStateOf(showReminderOnStart) }
+
+    // Obtiene el último recordatorio disponible (si existe)
+    val lastReminder = remindersVM.reminders.firstOrNull()
+
+    // Elementos de la barra inferior con su ícono y etiqueta
     val items = listOf(
         "dashboard" to Icons.Default.MonetizationOn,
         "budget" to Icons.Default.AccountBalanceWallet,
@@ -22,35 +38,26 @@ fun MainScreen(navController: NavHostController, viewModel: DashboardViewModel) 
         "settings" to Icons.Default.Settings
     )
 
-    // Estructura principal del diseño con barra inferior
+    // Estructura principal con barra inferior
     Scaffold(
         bottomBar = {
-            // Componente de Material3 que representa la barra de navegación inferior
             NavigationBar {
-                // Se recorren los elementos definidos en 'items'
                 items.forEach { (route, icon) ->
-                    // Cada ítem de la barra
                     NavigationBarItem(
-                        // Se marca como seleccionado si coincide con la ruta activa
                         selected = selectedItem == route,
-
-                        // Al hacer clic se actualiza el ítem seleccionado
                         onClick = { selectedItem = route },
-
-                        // Ícono visual del botón
                         icon = { Icon(icon, contentDescription = route) },
-
-                        // Etiqueta que se muestra debajo del ícono
                         label = {
                             Text(
-                                when(route) {
-                                    "dashboard" -> "Ingresos"          // Pantalla principal
-                                    "budget" -> "Gastos"               // Presupuesto o gastos
-                                    "savings" -> "Ahorros"             // Ahorros semanales o mensuales
-                                    "reminders" -> "Recordatorios"     // Alertas o avisos financieros
-                                    "settings" -> "Configuración"      // Ajustes generales de la app
+                                when (route) {
+                                    "dashboard" -> "Ingresos"
+                                    "budget" -> "Gastos"
+                                    "savings" -> "Ahorros"
+                                    "reminders" -> "Recordatorios"
+                                    "settings" -> "Configuración"
                                     else -> route
-                                }
+                                },
+                                fontSize = 8.sp // ajustar según necesites
                             )
                         }
                     )
@@ -58,14 +65,37 @@ fun MainScreen(navController: NavHostController, viewModel: DashboardViewModel) 
             }
         }
     ) { padding ->
-        // Contenido principal que se muestra según el ítem seleccionado
+        // Pantalla mostrada según el ítem seleccionado
         when (selectedItem) {
-            "dashboard" -> DashboardScreen(viewModel)   // Muestra la pantalla de ingresos
-            "budget" -> BudgetScreen(viewModel)         // Muestra la pantalla de gastos
+            "dashboard" -> DashboardScreen(viewModel)
+            "budget" -> BudgetScreen(viewModel)
+            "savings" -> SavingsScreen(viewModel)
+            "reminders" -> RemindersScreen(viewModel = remindersVM)
+            // (opcional) puedes añadir una futura pantalla para "settings"
+        }
+
+        // Si showGate está activo, muestra el pop-up con el último recordatorio
+        if (showGate) {
+            AlertDialog(
+                onDismissRequest = { showGate = false },
+                title = { Text("Recordatorio") },
+                text = {
+                    if (lastReminder != null) {
+                        Text(lastReminder.text)
+                    } else {
+                        Text("No tienes recordatorios pendientes.")
+                    }
+                },
+                confirmButton = {},
+                dismissButton = {
+                    TextButton(onClick = { showGate = false }) {
+                        Text("✕ Cerrar")
+                    }
+                }
+            )
         }
     }
 }
-
 
 
 

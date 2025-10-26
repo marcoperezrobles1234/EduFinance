@@ -46,7 +46,7 @@ fun BudgetScreen(viewModel: DashboardViewModel) {
         // Título de la pantalla
         item {
             Text(
-                "Gasto Semanal Propuesto",
+                "Gasto Semanal",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
