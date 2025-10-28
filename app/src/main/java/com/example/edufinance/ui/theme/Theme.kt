@@ -11,42 +11,46 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryGreen,
-    secondary = AccentYellow,
-    background = Color.Black,
-    surface = Color(0xFF121212),
-    onPrimary = TextLight,
-    onSecondary = TextDark,
-    onBackground = TextLight,
-    onSurface = TextLight
+private val LightColors = lightColorScheme(
+    primary = GreenPrimary,
+    onPrimary = Color.White,
+    primaryContainer = GreenContainer,
+    secondary = Gold,
+    onSecondary = Color.White,
+    background = BackgroundLight,
+    surface = SurfaceLight,
+    onSurface = TextDark,
+    onBackground = TextDark,
+    error = AccentRed
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = PrimaryGreen,
-    secondary = AccentYellow,
-    background = BackgroundBeige,
-    surface = BackgroundBeige,
+private val DarkColors = darkColorScheme(
+    primary = GreenPrimaryDark,
     onPrimary = TextLight,
-    onSecondary = TextDark,
-    onBackground = TextDark,
-    onSurface = TextDark
+    primaryContainer = GreenContainerDark,
+    secondary = GoldDark,
+    onSecondary = TextLight,
+    background = BackgroundDark,
+    surface = SurfaceDark,
+    onSurface = TextLight,
+    onBackground = TextLight,
+    error = AccentRed
 )
 
 @Composable
 fun EduFinanceTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context)
+            else dynamicLightColorScheme(context)
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> DarkColors
+        else -> LightColors
     }
 
     MaterialTheme(
@@ -55,3 +59,4 @@ fun EduFinanceTheme(
         content = content
     )
 }
+

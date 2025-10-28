@@ -1,7 +1,9 @@
 package com.example.edufinance.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -10,14 +12,22 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.edufinance.R
 import com.example.edufinance.ui.utils.isValidEmail
 import com.example.edufinance.ui.utils.isValidPassword
+import androidx.compose.material3.TextFieldDefaults
 
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onRegisterSuccess: () -> Unit,    // Acción al registrarse correctamente
@@ -35,124 +45,170 @@ fun RegisterScreen(
     var passwordError by remember { mutableStateOf<String?>(null) }
 
     // Contenedor principal de la pantalla de registro
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize()               // Ocupa toda la pantalla
-            .padding(24.dp),             // Margen interno
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFFFE082),// dorado claro
+                        Color(0xFFFFF8E1), // blanco-dorado muy suave
+                        Color(0xFFF9F9F9),
+                        Color(0xFFB2DFDB),  // verde muy suave
+                        Color(0xFF007F5F),
+                    )
+                )
+            )
+            .padding(24.dp)
     ) {
-        // Logo de la aplicación
-        Image(
-            painter = painterResource(id = R.drawable.logo_app),
-            contentDescription = "Logo",
-            modifier = Modifier.size(90.dp)
-        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.logo_app),
+                contentDescription = "Logo EduFinance",
+                modifier = Modifier.size(100.dp)
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
+            Text(
+                "Crear cuenta",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF007F5F)
+            )
+            Spacer(Modifier.height(24.dp))
 
-        // Título principal
-        Text("Crear cuenta", style = MaterialTheme.typography.headlineMedium, fontSize = 24.sp)
+            // === Campo Nombre ===
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nombre completo", color = Color(0xFF007F5F)) },
+                textStyle = LocalTextStyle.current.copy(color = Color(0xFF007F5F)),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color(0xFF007F5F),
+                    unfocusedIndicatorColor = Color(0xFF007F5F),
+                    cursorColor = Color(0xFF007F5F),
+                    focusedLabelColor = Color(0xFF007F5F),
+                    unfocusedLabelColor = Color(0xFF007F5F)
+                )
+            )
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(Modifier.height(12.dp))
 
-        // Campo para ingresar el nombre del usuario
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Nombre completo") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
+            // === Campo Email ===
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it; emailError = null },
+                label = { Text("Correo electrónico", color = Color(0xFF007F5F)) },
+                isError = emailError != null,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                textStyle = LocalTextStyle.current.copy(color = Color(0xFF007F5F)),
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color(0xFF007F5F),
+                    unfocusedIndicatorColor = Color(0xFF007F5F),
+                    cursorColor = Color(0xFF007F5F),
+                    focusedLabelColor = Color(0xFF007F5F),
+                    unfocusedLabelColor = Color(0xFF007F5F)
+                )
+            )
+            if (emailError != null)
+                Text(emailError!!, color = Color.Red, fontSize = 12.sp)
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
 
-        // Campo para ingresar el correo electrónico
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                emailError = null // Limpia el error al modificar el texto
-            },
-            label = { Text("Correo electrónico") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = emailError != null, // Marca error si la variable tiene texto
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-        )
-        // Muestra mensaje de error si el correo no es válido
-        if (emailError != null) Text(emailError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+            // === Campo Contraseña ===
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it; passwordError = null },
+                label = { Text("Contraseña", color = Color(0xFF007F5F)) },
+                isError = passwordError != null,
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(icon, contentDescription = null, tint = Color(0xFF007F5F))
+                    }
+                },
+                textStyle = LocalTextStyle.current.copy(color = Color(0xFF007F5F)),
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color(0xFF007F5F),
+                    unfocusedIndicatorColor = Color(0xFF007F5F),
+                    focusedLabelColor = Color(0xFF007F5F),
+                    unfocusedLabelColor = Color(0xFF007F5F),
+                    cursorColor = Color(0xFF007F5F)
+                )
+            )
+            if (passwordError != null)
+                Text(passwordError!!, color = Color.Red, fontSize = 12.sp)
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(24.dp))
 
-        // Campo para ingresar la contraseña
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-                passwordError = null // Limpia el error al escribir
-            },
-            label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = passwordError != null, // Indica visualmente si hay un error
-            singleLine = true,
-            // Si passwordVisible es true, muestra el texto; si no, lo oculta con asteriscos
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            trailingIcon = {
-                // Ícono que alterna la visibilidad de la contraseña
-                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                val desc = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, contentDescription = desc)
+            // === Botón Dorado ===
+            Button(
+                onClick = {
+                    val validEmail = isValidEmail(email)
+                    val validPassword = isValidPassword(password)
+
+                    if (!validEmail) emailError = "Correo inválido"
+                    if (!validPassword) passwordError = "Mínimo 8 caracteres, mayúsculas, minúsculas y símbolo"
+
+                    if (validEmail && validPassword) {
+                        onRegisterSuccess()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .shadow(8.dp, shape = RoundedCornerShape(16.dp)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                contentPadding = PaddingValues()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(Color(0xFFD4AF37), Color(0xFFFFE47A))
+                            ),
+                            shape = RoundedCornerShape(16.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Registrarse",
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
                 }
             }
-        )
-        // Muestra mensaje de error si la contraseña no cumple los requisitos
-        if (passwordError != null) Text(passwordError!!, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Botón principal para registrar al usuario
-        Button(
-            onClick = {
-                // Validaciones usando funciones auxiliares
-                val validEmail = isValidEmail(email)
-                val validPassword = isValidPassword(password)
-
-                // Muestra los errores correspondientes si algo está mal
-                if (!validEmail) emailError = "Correo inválido"
-                if (!validPassword) passwordError = "Mínimo 8 caracteres, mayúsculas, minúsculas y símbolo"
-
-                // Si ambos datos son válidos, ejecuta la acción de registro exitoso
-                if (validEmail && validPassword) {
-                    onRegisterSuccess()
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Registrarse")
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Botón de texto para ir a la pantalla de inicio de sesión
-        TextButton(onClick = onNavigateToLogin) {
-            Text("¿Ya tienes cuenta? Inicia sesión")
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // Botón de texto para volver a la pantalla anterior
-        TextButton(onClick = onBackClick) {
-            Text("Volver")
+            Spacer(Modifier.height(16.dp))
+            TextButton(onClick = onNavigateToLogin) {
+                Text("¿Ya tienes cuenta? Inicia sesión", color = Color(0xFF007F5F))
+            }
+            Spacer(Modifier.height(8.dp))
+            TextButton(onClick = onBackClick) {
+                Text("Volver", color = Color(0xFF007F5F))
+            }
         }
     }
 }
-
-
-
-
 
 
 

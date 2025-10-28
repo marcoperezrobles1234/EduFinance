@@ -1,146 +1,183 @@
 package com.example.edufinance.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.edufinance.ui.viewmodel.DashboardViewModel
 
-// Pantalla que permite al usuario registrar su presupuesto semanal por categorías
 @Composable
 fun BudgetScreen(viewModel: DashboardViewModel) {
-
-    // Variables de estado para cada categoría del presupuesto (se actualizan con el texto ingresado)
     var alimentos by remember { mutableStateOf("") }
     var transporte by remember { mutableStateOf("") }
     var libros by remember { mutableStateOf("") }
     var ocio by remember { mutableStateOf("") }
     var ahorro by remember { mutableStateOf("") }
 
-    // Variables que obtienen información del ViewModel
-    val mensaje = viewModel.mensaje        // Mensaje informativo o de confirmación
-    val saldoTotal = viewModel.saldoTotal  // Saldo restante total calculado en el ViewModel
+    val mensaje = viewModel.mensaje
+    val saldoTotal = viewModel.saldoTotal
 
-    // Lista con los nombres de las categorías y sus valores asociados
     val campos = listOf(
-        Pair("Alimentos", Pair(alimentos) { nuevoValor: String -> alimentos = nuevoValor }),
-        Pair("Transporte", Pair(transporte) { nuevoValor: String -> transporte = nuevoValor }),
-        Pair("Libros", Pair(libros) { nuevoValor: String -> libros = nuevoValor }),
-        Pair("Ocio", Pair(ocio) { nuevoValor: String -> ocio = nuevoValor }),
-        Pair("Ahorro", Pair(ahorro) { nuevoValor: String -> ahorro = nuevoValor })
+        Pair("Alimentos", Pair(alimentos) { nuevo: String -> alimentos = nuevo }),
+        Pair("Transporte", Pair(transporte) { nuevo: String -> transporte = nuevo }),
+        Pair("Libros", Pair(libros) { nuevo: String -> libros = nuevo }),
+        Pair("Ocio", Pair(ocio) { nuevo: String -> ocio = nuevo }),
+        Pair("Ahorro", Pair(ahorro) { nuevo: String -> ahorro = nuevo })
     )
 
-    // Lista desplazable verticalmente que muestra los campos y botones
-    LazyColumn(
+    // Fondo blanco degradado
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(bottom = 120.dp)
-    ) {
-        // Título de la pantalla
-        item {
-            Text(
-                "Gasto Semanal",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Recorre la lista de categorías y genera un campo de texto + botón por cada una
-        items(campos.size) { index ->
-            val (label, campo) = campos[index]
-            val valor = campo.first           // Valor actual del campo de texto
-            val onValueChange = campo.second  // Función que actualiza el texto
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Campo de texto para ingresar el monto de la categoría
-                OutlinedTextField(
-                    value = valor,
-                    onValueChange = onValueChange,
-                    label = { Text(label) },      // Muestra el nombre de la categoría
-                    singleLine = true,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color.White, Color(0xFFF9F9F9))
                 )
-                // Botón que registra el gasto al presionarlo
-                Button(
-                    onClick = {
-                        val monto = valor.toDoubleOrNull() ?: 0.0  // Convierte el texto a número
-                        if (monto > 0) {                           // Solo si el monto es válido
-                            viewModel.registrarGasto(label, monto) // Registra el gasto en el ViewModel
-                            onValueChange("")                      // Limpia el campo tras registrar
-                        }
-                    },
-                    modifier = Modifier.wrapContentWidth()
-                ) {
-                    Text("Aceptar")
-                }
-            }
-        }
-
-        // Sección inferior con el saldo restante y mensajes informativos
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Muestra un mensaje informativo si existe (por ejemplo, confirmación)
-            if (mensaje.isNotEmpty()) {
+            )
+            .padding(horizontal = 16.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            contentPadding = PaddingValues(bottom = 120.dp)
+        ) {
+            item {
                 Text(
-                    mensaje.trim(),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.fillMaxWidth()
+                    "Gasto Semanal",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF007F5F)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Tarjeta que muestra el saldo restante calculado
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(
+            items(campos.size) { index ->
+                val (label, campo) = campos[index]
+                val valor = campo.first
+                val onValueChange = campo.second
+
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Texto descriptivo
-                    Text(
-                        text = "Saldo restante",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    OutlinedTextField(
+                            value = valor,
+                            onValueChange = onValueChange,
+                            label = { Text(label, color = Color(0xFF007F5F)) },
+                            textStyle = LocalTextStyle.current.copy(color = Color(0xFF007F5F)),
+                            singleLine = true,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 12.dp),
+
                     )
-                    // Muestra el saldo formateado con dos decimales
-                    Text(
-                        text = "$${String.format("%.2f", saldoTotal)}",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+
+                    // Botón brillante dorado
+                    Button(
+                        onClick = {
+                            val monto = valor.toDoubleOrNull() ?: 0.0
+                            if (monto > 0) {
+                                viewModel.registrarGasto(label, monto)
+                                onValueChange("")
+                            }
+                        },
+                        modifier = Modifier
+                            .height(48.dp)
+                            .weight(0.5f)
+                            .shadow(6.dp, shape = RoundedCornerShape(12.dp)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent
+                        ),
+                        contentPadding = PaddingValues()
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(
+                                            Color(0xFFC9A227), // Dorado oscuro
+                                            Color(0xFFFFD166)  // Dorado claro
+                                        )
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Aceptar",
+                                color = Color.White,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(80.dp))
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                if (mensaje.isNotEmpty()) {
+                    Text(
+                        mensaje.trim(),
+                        color = Color(0xFF007F5F),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // Tarjeta elegante
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .shadow(8.dp, shape = RoundedCornerShape(24.dp)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(24.dp),
+                    border = BorderStroke(1.dp, Color(0xFFC9A227)) // Borde dorado
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Saldo restante",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color(0xFF007F5F)
+                        )
+                        Text(
+                            text = "$${String.format("%.2f", saldoTotal)}",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFC9A227)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(80.dp))
+            }
         }
     }
 }
+
 
 
 

@@ -1,13 +1,18 @@
 package com.example.edufinance.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -23,46 +28,90 @@ fun WelcomeScreen(
     // Contenedor principal de la pantalla, centrando los elementos
     Column(
         modifier = modifier
-            .fillMaxSize()               // Ocupa toda la pantalla
-            .padding(24.dp),             // Márgenes internos
-        horizontalAlignment = Alignment.CenterHorizontally, // Centra elementos horizontalmente
-        verticalArrangement = Arrangement.Center           // Centra elementos verticalmente
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFFFE082),// dorado claro
+                        Color(0xFFFFF8E1), // blanco-dorado muy suave
+                        Color(0xFFF9F9F9),
+                        Color(0xFFB2DFDB),  // verde muy suave
+                        Color(0xFF007F5F),
+
+                    )
+                )
+            )
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        // Imagen del logo de la app
         Image(
             painter = painterResource(id = R.drawable.logo_app),
             contentDescription = "Logo",
-            modifier = Modifier.size(200.dp)  // Tamaño de la imagen
+            modifier = Modifier.size(200.dp)
         )
 
-        Spacer(Modifier.height(16.dp))       // Espacio entre el logo y el título
+        Spacer(Modifier.height(16.dp))
 
-        // Nombre de la app en grande y en negrita
         Text(
             text = "EduFinance",
             fontSize = 32.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF007F5F)
         )
 
-        Spacer(Modifier.height(40.dp))       // Espacio antes de los botones
+        Spacer(Modifier.height(40.dp))
 
-        // Botón para ir a la pantalla de login
+        // Botón dorado brillante - Iniciar Sesión
         Button(
             onClick = onLoginClick,
-            modifier = Modifier.fillMaxWidth()  // Botón ocupa todo el ancho disponible
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .shadow(6.dp, RoundedCornerShape(12.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            contentPadding = PaddingValues()
         ) {
-            Text("Iniciar Sesión")            // Texto dentro del botón
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFC9A227), Color(0xFFFFD166))
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Iniciar Sesión", color = Color.White, fontWeight = FontWeight.SemiBold)
+            }
         }
 
-        Spacer(Modifier.height(12.dp))       // Separación entre botones
+        Spacer(Modifier.height(12.dp))
 
-        // Botón para ir a la pantalla de registro
+        // Botón dorado brillante - Registrarse
         Button(
             onClick = onRegisterClick,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors() // Colores por defecto del tema
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .shadow(6.dp, RoundedCornerShape(12.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            contentPadding = PaddingValues()
         ) {
-            Text("Registrarse")                // Texto dentro del botón
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFC9A227), Color(0xFFFFD166))
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Registrarse", color = Color.White, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }

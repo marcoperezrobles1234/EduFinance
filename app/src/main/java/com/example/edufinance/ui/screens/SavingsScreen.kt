@@ -1,10 +1,16 @@
 package com.example.edufinance.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,39 +28,47 @@ fun SavingsScreen(viewModel: DashboardViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
         Text(
             "Ahorros",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF007F5F)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Tarjeta que muestra el total ahorrado
+        // Tarjeta total ahorrado
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(8.dp, shape = RoundedCornerShape(24.dp)),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            shape = RoundedCornerShape(24.dp),
+            border = BorderStroke(1.dp, Color(0xFFC9A227))
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Total Ahorrado",
-                    style = MaterialTheme.typography.titleMedium
+                    "Total Ahorrado",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFF007F5F)
                 )
+                Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "$${String.format("%.2f", ahorroActual)}",
+                    "$${String.format("%.2f", ahorroActual)}",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = Color(0xFFC9A227)
                 )
             }
         }
@@ -65,7 +79,8 @@ fun SavingsScreen(viewModel: DashboardViewModel) {
         OutlinedTextField(
             value = montoAhorro,
             onValueChange = { montoAhorro = it },
-            label = { Text("Monto a transferir a ahorro") },
+            label = { Text("Monto a transferir a ahorro", color = Color(0xFF007F5F)) },
+            textStyle = LocalTextStyle.current.copy(color = Color(0xFF007F5F)),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -75,19 +90,36 @@ fun SavingsScreen(viewModel: DashboardViewModel) {
         Button(
             onClick = {
                 val monto = montoAhorro.toDoubleOrNull() ?: 0.0
-                if (monto > 0 && monto <= saldoDisponible) {
-                    viewModel.registrarGasto("Ahorro", monto)
-                    mensajeLocal = "Se han transferido $${String.format("%.2f", monto)} al ahorro"
-                    montoAhorro = ""
-                } else if (monto > saldoDisponible) {
-                    mensajeLocal = "Saldo insuficiente para transferir."
-                } else {
-                    mensajeLocal = "Ingrese un monto válido."
+                when {
+                    monto <= 0 -> mensajeLocal = "Ingrese un monto válido."
+                    monto > saldoDisponible -> mensajeLocal = "Saldo insuficiente para transferir."
+                    else -> {
+                        viewModel.registrarGasto("Ahorro", monto)
+                        mensajeLocal = "Se han transferido $${String.format("%.2f", monto)} al ahorro"
+                        montoAhorro = ""
+                    }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .shadow(6.dp, shape = RoundedCornerShape(12.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            contentPadding = PaddingValues()
         ) {
-            Text("Guardar en Ahorros")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFC9A227), Color(0xFFFFD166))
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Guardar en Ahorros", color = Color.White, fontWeight = FontWeight.SemiBold)
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -96,7 +128,8 @@ fun SavingsScreen(viewModel: DashboardViewModel) {
         OutlinedTextField(
             value = montoRetiro,
             onValueChange = { montoRetiro = it },
-            label = { Text("Monto a retirar del ahorro") },
+            label = { Text("Monto a retirar del ahorro", color = Color(0xFF007F5F)) },
+            textStyle = LocalTextStyle.current.copy(color = Color(0xFF007F5F)),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -106,29 +139,48 @@ fun SavingsScreen(viewModel: DashboardViewModel) {
         Button(
             onClick = {
                 val monto = montoRetiro.toDoubleOrNull() ?: 0.0
-                viewModel.retirarDeAhorro(monto)
-                mensajeLocal = viewModel.mensaje
-                montoRetiro = ""
+                when {
+                    monto <= 0 -> mensajeLocal = "Ingrese un monto válido."
+                    monto > ahorroActual -> mensajeLocal = "No hay suficiente ahorro."
+                    else -> {
+                        viewModel.retirarDeAhorro(monto)
+                        mensajeLocal = viewModel.mensaje
+                        montoRetiro = ""
+                    }
+                }
             },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer
-            ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .shadow(6.dp, shape = RoundedCornerShape(12.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+            contentPadding = PaddingValues()
         ) {
-            Text("Retirar de Ahorros")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFC9A227), Color(0xFFFFD166))
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Retirar de Ahorros", color = Color.White, fontWeight = FontWeight.SemiBold)
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Muestra mensaje informativo
+        // Mensaje informativo
         if (mensajeLocal.isNotEmpty()) {
             Text(
                 text = mensajeLocal,
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 8.dp)
+                color = Color(0xFF007F5F),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
             )
         }
     }
-}
-//Actualizado (2)
+}//Actualizado (2)

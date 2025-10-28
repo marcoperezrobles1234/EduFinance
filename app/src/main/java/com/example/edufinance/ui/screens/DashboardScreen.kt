@@ -1,11 +1,19 @@
 package com.example.edufinance.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.edufinance.ui.viewmodel.DashboardViewModel
 
 // Pantalla principal del Dashboard financiero donde se muestra el saldo total y permite agregar dinero
@@ -16,49 +24,109 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
     var monto by remember { mutableStateOf("") }
 
     // Estructura principal de la pantalla
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize()            // Ocupa todo el espacio disponible
-            .padding(16.dp),          // Margen interior de 16dp
-        horizontalAlignment = Alignment.CenterHorizontally // Centra los elementos horizontalmente
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color.White, Color(0xFFF9F9F9))
+                )
+            )
+            .padding(16.dp)
     ) {
-        // Título de la sección
-        Text("Resumen Financiero", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Subtítulo que indica el propósito del valor mostrado
-        Text("Saldo Total Disponible", style = MaterialTheme.typography.titleLarge)
-
-        // Muestra el saldo total actual obtenido del ViewModel, formateado a dos decimales
-        Text(
-            "$${String.format("%.2f", viewModel.saldoTotal)}",
-            style = MaterialTheme.typography.headlineLarge
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Campo de texto para ingresar una cantidad a agregar al saldo
-        OutlinedTextField(
-            value = monto,                        // Valor actual del campo
-            onValueChange = { monto = it },       // Actualiza el valor al escribir
-            label = { Text("Agregar monto") }     // Etiqueta visible en el campo
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Botón para agregar el monto ingresado al saldo total
-        Button(
-            onClick = {
-                val valor = monto.toDoubleOrNull()       // Convierte el texto a número
-                if (valor != null && valor > 0)          // Verifica que el valor sea válido y positivo
-                    viewModel.agregarSaldo(valor)        // Llama al ViewModel para actualizar el saldo
-                monto = ""                               // Limpia el campo de texto tras agregar
-            }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Agregar a saldo") // Texto dentro del botón
+            Text(
+                "Resumen Financiero",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF007F5F)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Saldo Total Disponible",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFF007F5F)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tarjeta elegante para el saldo
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(8.dp, shape = RoundedCornerShape(24.dp)),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                shape = RoundedCornerShape(24.dp),
+                border = BorderStroke(1.dp, Color(0xFFC9A227))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        "$${String.format("%.2f", viewModel.saldoTotal)}",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFC9A227)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Campo para agregar monto
+            OutlinedTextField(
+                value = monto,
+                onValueChange = { monto = it},
+                label = { Text("Agregar monto", color = Color(0xFF007F5F)) },
+                textStyle = LocalTextStyle.current.copy(color = Color(0xFF007F5F)),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón dorado brillante
+            Button(
+                onClick = {
+                    val valor = monto.toDoubleOrNull()
+                    if (valor != null && valor > 0) {
+                        viewModel.agregarSaldo(valor)
+                        monto = ""
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .shadow(6.dp, shape = RoundedCornerShape(12.dp)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                contentPadding = PaddingValues()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color(0xFFC9A227), // Dorado oscuro
+                                    Color(0xFFFFD166)  // Dorado claro
+                                )
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Agregar a saldo",
+                        color = Color.White,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
         }
     }
 }
-
-
-
